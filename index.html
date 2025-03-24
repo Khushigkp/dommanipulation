@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+
+        .wrapper {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 350px;
+        }
+
+        .header-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header-section h1 {
+            margin: 0;
+            font-size: 24px;
+            margin-left: 10px;
+        }
+
+        .input-wrapper {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        #taskField {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        #addButton {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        #addButton:hover {
+            background-color: #45a049;
+        }
+
+        .task-container {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .task-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .task-entry:last-child {
+            border-bottom: none;
+        }
+
+        .remove-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .remove-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .icon {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="header-section">
+            <span class="icon">📝</span>
+            <h1>Task Tracker</h1>
+        </div>
+        
+        <div class="input-wrapper">
+            <input type="text" id="taskField" placeholder="Enter a task...">
+            <button id="addButton">Add Task</button>
+        </div>
+        
+        <ul id="taskContainer" class="task-container">
+            <!-- Tasks will be added here dynamically -->
+        </ul>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const taskField = document.getElementById('taskField');
+            const addButton = document.getElementById('addButton');
+            const taskContainer = document.getElementById('taskContainer');
+            
+            loadStoredTasks();
+            
+            addButton.addEventListener('click', addNewTask);
+            
+            taskField.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addNewTask();
+                }
+            });
+            
+            function addNewTask() {
+                const taskContent = taskField.value.trim();
+                
+                if (taskContent !== '') {
+                    generateTaskElement(taskContent);
+                    storeTask(taskContent);
+                    taskField.value = '';
+                    taskField.focus();
+                }
+            }
+            
+            function generateTaskElement(taskContent) {
+                const listItem = document.createElement('li');
+                listItem.className = 'task-entry';
+                
+                const taskSpan = document.createElement('span');
+                taskSpan.textContent = taskContent;
+                
+                const removeButton = document.createElement('button');
+                removeButton.className = 'remove-btn';
+                removeButton.textContent = 'Delete';
+                
+                removeButton.addEventListener('click', function() {
+                    listItem.remove();
+                    deleteStoredTask(taskContent);
+                });
+                
+                listItem.appendChild(taskSpan);
+                listItem.appendChild(removeButton);
+                
+                taskContainer.appendChild(listItem);
+            }
+            
+            function storeTask(taskContent) {
+                let storedTasks = retrieveTasks();
+                storedTasks.push(taskContent);
+                localStorage.setItem('tasks', JSON.stringify(storedTasks));
+            }
+            
+            function deleteStoredTask(taskContent) {
+                let storedTasks = retrieveTasks();
+                storedTasks = storedTasks.filter(task => task !== taskContent);
+                localStorage.setItem('tasks', JSON.stringify(storedTasks));
+            }
+            
+            function retrieveTasks() {
+                let storedTasks = localStorage.getItem('tasks');
+                return storedTasks ? JSON.parse(storedTasks) : [];
+            }
+            
+            function loadStoredTasks() {
+                const storedTasks = retrieveTasks();
+                storedTasks.forEach(task => {
+                    generateTaskElement(task);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
